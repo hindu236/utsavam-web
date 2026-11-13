@@ -1,0 +1,10 @@
+{
+  "name": "Utsavam",
+  "short_name": "Utsavam",
+  "description": "Vratham days, temple festivals and family star reminders.",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#FFF8EE",
+  "theme_color": "#7A1E2C",
+  "icons": [{ "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }]
+}
