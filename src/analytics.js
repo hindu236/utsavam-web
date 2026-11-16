@@ -34,21 +34,32 @@ let sessionId;
 let visibleSince = null; // when the app last became visible
 let pendingSeconds = 0; // visible time not yet sent
 let started = false;
+// Later events wait for "start" to be saved, so the first tab isn't lost
+// when it would otherwise reach the server before the visitor exists.
+let startSaved = Promise.resolve();
+
+function post(body) {
+  return fetch(ENDPOINT, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body,
+    keepalive: true,
+  }).catch(() => {});
+}
 
 function send(payload, { beacon = false } = {}) {
   if (!enabled) return;
   const body = JSON.stringify({ visitorId, sessionId, ...payload });
   try {
+    if (payload.type === 'start') {
+      startSaved = post(body);
+      return;
+    }
     if (beacon && navigator.sendBeacon) {
       navigator.sendBeacon(ENDPOINT, new Blob([body], { type: 'application/json' }));
       return;
     }
-    fetch(ENDPOINT, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body,
-      keepalive: true,
-    }).catch(() => {});
+    startSaved.then(() => post(body));
   } catch {
     // never let tracking break the app
   }
