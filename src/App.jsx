@@ -11,11 +11,16 @@ import { AddFamily, Family } from './pages/Family';
 import Videos from './pages/Videos';
 import { Plans, Settings, Setup } from './pages/Settings';
 import NotFound from './pages/NotFound';
+import { startTracking, trackView } from './analytics';
 
-// Scroll to the top whenever the page changes.
+// Scroll to the top whenever the page changes, and record which tab was opened.
 function OnRouteChange() {
   const { pathname } = useLocation();
-  useEffect(() => { window.scrollTo(0, 0); }, [pathname]);
+  useEffect(() => { startTracking(); }, []);
+  useEffect(() => {
+    window.scrollTo(0, 0);
+    trackView(pathname);
+  }, [pathname]);
   return null;
 }
 
