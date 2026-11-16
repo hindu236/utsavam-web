@@ -10,6 +10,8 @@ const PING_EVERY_MS = 15000;
 const enabled =
   typeof window !== 'undefined' &&
   !/github\.io$|^localhost$|^127\.|^192\.168\./.test(window.location.hostname) &&
+  !navigator.webdriver && // automated/robot browsers
+  !/headless/i.test(navigator.userAgent) &&
   !new URLSearchParams(window.location.search).has('notrack');
 
 function makeId() {

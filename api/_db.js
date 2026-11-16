@@ -43,3 +43,8 @@ export function deviceFrom(ua = '') {
   const mobile = /mobi|android|iphone|ipad/i.test(ua);
   return `${os} · ${browser}${mobile ? ' · mobile' : ''}`;
 }
+
+// Robots that open the site but aren't people: Vercel's deploy screenshots
+// (HeadlessChrome), search crawlers, link previews (WhatsApp, Facebook...).
+const BOT_RE = /headless|bot|crawl|spider|slurp|preview|lighthouse|pagespeed|facebookexternalhit|whatsapp|telegram|vercel|curl|wget|python|node-fetch|axios/i;
+export const isBot = (ua = '') => !ua || BOT_RE.test(ua);

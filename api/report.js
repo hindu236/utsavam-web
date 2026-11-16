@@ -2,7 +2,7 @@
 // GET /report?key=REPORT_KEY&format=csv → download the visitors table as CSV
 //
 // Protected by REPORT_KEY because it shows visitors' IP addresses.
-import { getDb } from './_db.js';
+import { getDb, isBot } from './_db.js';
 
 const TAB_NAMES = {
   today: 'Today', whatsapp: 'WhatsApp', calendar: 'Calendar', vratham: 'Vratham',
@@ -19,10 +19,13 @@ export default async function handler(req, res) {
 
   try {
     const db = await getDb();
-    const visitors = await db.collection('visitors')
-      .find({}).sort({ lastSeenAt: -1 }).limit(5000).toArray();
-    const sessions = await db.collection('sessions')
-      .find({}).sort({ startedAt: -1 }).limit(300).toArray();
+    // Leave out robots saved before bot filtering was added.
+    const visitors = (await db.collection('visitors')
+      .find({}).sort({ lastSeenAt: -1 }).limit(5000).toArray())
+      .filter((v) => !isBot(v.userAgent));
+    const sessions = (await db.collection('sessions')
+      .find({}).sort({ startedAt: -1 }).limit(400).toArray())
+      .filter((x) => !isBot(x.userAgent)).slice(0, 300);
 
     if (req.query.format === 'csv') return sendCsv(res, visitors);
 

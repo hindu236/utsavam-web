@@ -7,7 +7,7 @@
 //
 // One visitor = one browser/device (random id kept in localStorage), so
 // opening the app again counts as the same person with visits + 1.
-import { clientIp, deviceFrom, getDb } from './_db.js';
+import { clientIp, deviceFrom, getDb, isBot } from './_db.js';
 
 const MAX_PING_SECONDS = 60; // ignore bogus/huge time jumps
 const ID_RE = /^[a-zA-Z0-9-]{8,64}$/;
@@ -28,9 +28,12 @@ export default async function handler(req, res) {
     return res.status(400).json({ ok: false, error: 'bad id' });
   }
 
+  const ua = String(req.headers['user-agent'] || '').slice(0, 300);
+  // Don't count robots (e.g. Vercel's deploy screenshot browser).
+  if (isBot(ua)) return res.status(200).json({ ok: true, skipped: 'bot' });
+
   const now = new Date();
   const ip = clientIp(req);
-  const ua = String(req.headers['user-agent'] || '').slice(0, 300);
   const page = typeof path === 'string' ? path.slice(0, 100) || '/' : null;
 
   try {
