@@ -1,7 +1,7 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { T } from '../data/i18n';
 import { DEFAULT_FAMILY } from '../data/content';
-import { fmt, fmtY, diff } from '../data/dates';
+import { fmt, fmtY, diff, nextFamilyDate } from '../data/dates';
 
 const AppCtx = createContext(null);
 export const useApp = () => useContext(AppCtx);
@@ -14,15 +14,18 @@ const save = (k, v) => { try { localStorage.setItem(KEY + k, JSON.stringify(v));
 const DEFAULTS = {
   lang: 'ml', size: 18, plan: 'free',
   family: DEFAULT_FAMILY,
-  reminded: ['ekadashi|2026-11-20'],
-  followed: ['bhadrakali'],
+  reminded: [],
+  followed: ['guruvayur'],
 };
 
 export function AppProvider({ children }) {
   const [lang, setLang] = useState(() => load('lang', DEFAULTS.lang));
   const [size, setSize] = useState(() => load('size', DEFAULTS.size));
   const [plan, setPlan] = useState(() => load('plan', DEFAULTS.plan));
-  const [family, setFamily] = useState(() => load('family', DEFAULTS.family));
+  // Recalculate each family day's next date from its star and month, so it is
+  // always the real upcoming date (also fixes dates saved by the old demo).
+  const [family, setFamily] = useState(() =>
+    load('family', DEFAULTS.family).map(f => ({ ...f, next: nextFamilyDate(f.star, f.month) })));
   const [reminded, setReminded] = useState(() => load('reminded', DEFAULTS.reminded));
   const [followed, setFollowed] = useState(() => load('followed', DEFAULTS.followed));
   const [sheet, setSheet] = useState(null);
@@ -54,7 +57,7 @@ export function AppProvider({ children }) {
       sheet, openSheet: setSheet, closeSheet: () => setSheet(null),
       toastMsg, toast,
       resetDemo: () => {
-        setPlan(DEFAULTS.plan); setFamily(DEFAULTS.family); setReminded(DEFAULTS.reminded); setFollowed(DEFAULTS.followed);
+        setPlan(DEFAULTS.plan); setFamily(DEFAULTS.family.map(f => ({ ...f, next: nextFamilyDate(f.star, f.month) }))); setReminded(DEFAULTS.reminded); setFollowed(DEFAULTS.followed);
       },
     };
   }, [lang, size, plan, family, reminded, followed, sheet, toastMsg, toast]);

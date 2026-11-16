@@ -8,7 +8,8 @@ import NotFound from './NotFound';
 export function Temples() {
   const { t, L } = useApp();
   const navigate = useNavigate();
-  const list = [...TEMPLES].sort((a, b) => (b.featured ? 1 : 0) - (a.featured ? 1 : 0) || a.km - b.km);
+  // Featured first, then by festival date
+  const list = [...TEMPLES].sort((a, b) => (b.featured ? 1 : 0) - (a.featured ? 1 : 0) || a.date.localeCompare(b.date));
   return (
     <>
       <TopBar title={t('temples')} settings />
@@ -21,7 +22,7 @@ export function Temples() {
               <div className="ic" style={{ background: `linear-gradient(135deg,${tp.c1},${tp.c2})` }}>{tp.emoji}</div>
               <div className="gr">
                 <b>{L(tp.name)}</b>
-                <span>📍 {L(tp.place)} · {tp.km} {t('km')}</span>
+                <span>📍 {L(tp.place)}</span>
                 <span>{t('next')}: {L(tp.fest)} · {L(tp.dates)}</span>
                 {tp.featured && <span className="tag feat">{t('featured')}</span>}
               </div><span aria-hidden="true">›</span>
@@ -77,10 +78,9 @@ export function Temple() {
         </div>
 
         <div className="block">
-          <h2>{t('timings')}</h2>
-          <p>🕉️ {L(tp.time)}</p>
-          {/* Sample temples are fictional, so Directions stays a demo until real temple locations are added. */}
-          <button className="btn w" style={{ marginTop: '.6rem' }} onClick={() => toast(t('mapsDemo'))}>{t('directions')} · {tp.km} {t('km')}</button>
+          <a className="btn w" href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${tp.name[0]}, ${tp.place[0]}`)}`} target="_blank" rel="noopener noreferrer">
+            {t('directions')}
+          </a>
         </div>
 
         <div className="block">

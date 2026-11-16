@@ -1,19 +1,35 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useApp } from '../state/AppContext';
+import { MONTHS, TODAY } from '../data/content';
 import { iso, todayIso, MON_ML, MON_EN_FULL, WD_EN, WD_ML_S } from '../data/dates';
+import { malayalamDate } from '../data/panchang';
 import { EventRow, TopBar, allEvents } from '../components/ui';
 
-const MAL_RANGE = { 10: ['Thulam – Vrischikam 1202', 'തുലാം – വൃശ്ചികം 1202'], 11: ['Vrischikam – Dhanu 1202', 'വൃശ്ചികം – ധനു 1202'] };
+// Months people can browse: this month and the next two (dates are verified up to January).
+const MONTH_COUNT = 3;
+const monthAt = (offset) => new Date(TODAY.getFullYear(), TODAY.getMonth() + offset, 1);
+
+// "Vrischikam – Dhanu 1202": the Malayalam months a Gregorian month spans.
+function malRange(first, L) {
+  const last = new Date(first.getFullYear(), first.getMonth() + 1, 0);
+  const a = malayalamDate(first), b = malayalamDate(last);
+  const name = (m) => L(MONTHS[m.month]);
+  return a.month === b.month ? `${name(a)} ${a.year}` : `${name(a)} – ${name(b)} ${b.year}`;
+}
 
 export default function Calendar() {
   const { t, L, lang, fmtY, family } = useApp();
-  const [month, setMonth] = useState(10); // demo shows Nov–Dec 2026
+  const [offset, setOffset] = useState(0);
   const [sel, setSel] = useState(todayIso);
-  const year = 2026;
-  const first = new Date(year, month, 1);
+  const first = monthAt(offset);
+  const year = first.getFullYear(), month = first.getMonth();
   const days = new Date(year, month + 1, 0).getDate();
-  const byDay = {};
-  allEvents(family).forEach(e => (byDay[e.d] = byDay[e.d] || []).push(e));
+  const byDay = useMemo(() => {
+    const m = {};
+    allEvents(family).forEach(e => (m[e.d] = m[e.d] || []).push(e));
+    return m;
+  }, [family]);
+  const range = useMemo(() => malRange(first, L), [year, month, lang]); // eslint-disable-line react-hooks/exhaustive-deps
   const list = byDay[sel] || [];
 
   const cells = [];
@@ -28,14 +44,21 @@ export default function Calendar() {
     );
   }
 
+  const go = (n) => {
+    const next = Math.max(0, Math.min(MONTH_COUNT - 1, offset + n));
+    setOffset(next);
+    // Select today in the current month, otherwise the 1st of the month shown.
+    setSel(next === 0 ? todayIso : iso(monthAt(next)));
+  };
+
   return (
     <>
       <TopBar title={t('calendar')} settings />
       <div className="pad">
         <div className="cal-head">
-          <button className="ib" disabled={month === 10} onClick={() => setMonth(10)} aria-label="Previous month">‹</button>
-          <div><b>{lang === 'ml' ? MON_ML[month] : MON_EN_FULL[month]} {year}</b><small>{L(MAL_RANGE[month])}</small></div>
-          <button className="ib" disabled={month === 11} onClick={() => setMonth(11)} aria-label="Next month">›</button>
+          <button className="ib" disabled={offset === 0} onClick={() => go(-1)} aria-label="Previous month">‹</button>
+          <div><b>{lang === 'ml' ? MON_ML[month] : MON_EN_FULL[month]} {year}</b><small>{range}</small></div>
+          <button className="ib" disabled={offset === MONTH_COUNT - 1} onClick={() => go(1)} aria-label="Next month">›</button>
         </div>
         <div className="grid">
           {(lang === 'ml' ? WD_ML_S : WD_EN.map(x => x[0])).map((w, i) => <div key={i} className="wd">{w}</div>)}

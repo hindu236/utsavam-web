@@ -1,7 +1,13 @@
 import { useNavigate } from 'react-router-dom';
 import { useApp } from '../state/AppContext';
-import { CAL, TEMPLES } from '../data/content';
-import { diff } from '../data/dates';
+import { CAL, MONTHS, STARS, TEMPLES, TODAY } from '../data/content';
+import { malayalamDate, starOfDay } from '../data/panchang';
+import { diff, MON_EN_FULL, MON_ML } from '../data/dates';
+
+const WD_LONG = [
+  ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
+  ['ഞായറാഴ്ച', 'തിങ്കളാഴ്ച', 'ചൊവ്വാഴ്ച', 'ബുധനാഴ്ച', 'വ്യാഴാഴ്ച', 'വെള്ളിയാഴ്ച', 'ശനിയാഴ്ച'],
+];
 import { EventRow, LangToggle } from '../components/ui';
 
 export default function Today() {
@@ -11,6 +17,14 @@ export default function Today() {
   const famDays = family.map((f, i) => ({ d: f.next, k: 'fam', i })).filter(e => diff(e.d) >= 0)
     .sort((a, b) => a.d.localeCompare(b.d)).slice(0, 2);
   const ft = TEMPLES.find(x => x.featured);
+  // Real date for today: Malayalam (Kollavarsham) date and the star of the day.
+  const md = malayalamDate(TODAY);
+  const malDate = `${L(MONTHS[md.month])} ${md.day}, ${md.year}`;
+  const engDate = L([
+    `${WD_LONG[0][TODAY.getDay()]}, ${TODAY.getDate()} ${MON_EN_FULL[TODAY.getMonth()]} ${TODAY.getFullYear()}`,
+    `${WD_LONG[1][TODAY.getDay()]}, ${MON_ML[TODAY.getMonth()]} ${TODAY.getDate()}, ${TODAY.getFullYear()}`,
+  ]);
+  const todayStar = L(STARS[starOfDay(TODAY)]);
 
   return (
     <>
@@ -23,9 +37,9 @@ export default function Today() {
       <div className="pad">
         <section className="daycard">
           <div className="gm">{t('gm')}</div>
-          <div className="md">{t('malDate')}</div>
-          <div className="en">{t('engDate')}</div>
-          <div className="pill">⭐ {t('star')}: {t('todayStar')}</div>
+          <div className="md">{malDate}</div>
+          <div className="en">{engDate}</div>
+          <div className="pill">⭐ {t('star')}: {todayStar}</div>
           <div className="lamp" aria-hidden="true">🪔</div>
         </section>
 
@@ -46,7 +60,7 @@ export default function Today() {
           <div className="h"><h2>{t('featuredFest')}</h2></div>
           <button className="feat-card" onClick={() => navigate(`/temples/${ft.id}`)}>
             <div className="top"><b>{ft.emoji} {L(ft.fest)}</b><span>{L(ft.name)}, {L(ft.place)}</span></div>
-            <div className="bot"><span>📅 {L(ft.dates)} · {ft.km} {t('km')}</span><span className="tag feat">{t('featured')}</span></div>
+            <div className="bot"><span>📅 {L(ft.dates)}</span><span className="tag feat">{t('featured')}</span></div>
           </button>
         </>}
 

@@ -1,13 +1,14 @@
-// SAMPLE DATA ONLY. Temples are fictional; dates and panchangam values are not verified.
-// Replace with real data (and a panchangam source) before launch.
+// Real data for Kerala, Vrischikam 1202 (Nov 2026 - Jan 2027).
+// Vratham dates: Kerala almanac (Vrischika Masam 2026) and Drik Panchang, and
+// checked against our own sun/moon calculation (src/data/panchang.js).
+// Temple dates: published festival calendars (see SOURCES at the bottom).
 
-// Fixed "today" for the demo, so the sample dates always look upcoming.
-export const DEMO_TODAY = new Date(2026, 10, 13); // Fri 13 Nov 2026
+// Real "today" (start of the day on this device).
+const now = new Date();
+export const TODAY = new Date(now.getFullYear(), now.getMonth(), now.getDate());
 
 export const STARS = [['Ashwathi','അശ്വതി'],['Bharani','ഭരണി'],['Karthika','കാർത്തിക'],['Rohini','രോഹിണി'],['Makayiram','മകയിരം'],['Thiruvathira','തിരുവാതിര'],['Punartham','പുണർതം'],['Pooyam','പൂയം'],['Ayilyam','ആയില്യം'],['Makam','മകം'],['Pooram','പൂരം'],['Uthram','ഉത്രം'],['Atham','അത്തം'],['Chithira','ചിത്തിര'],['Chothi','ചോതി'],['Vishakham','വിശാഖം'],['Anizham','അനിഴം'],['Thrikketta','തൃക്കേട്ട'],['Moolam','മൂലം'],['Pooradam','പൂരാടം'],['Uthradam','ഉത്രാടം'],['Thiruvonam','തിരുവോണം'],['Avittam','അവിട്ടം'],['Chathayam','ചതയം'],['Pooruruttathi','പൂരുരുട്ടാതി'],['Uthruttathi','ഉത്രട്ടാതി'],['Revathi','രേവതി']];
 export const MONTHS = [['Chingam','ചിങ്ങം'],['Kanni','കന്നി'],['Thulam','തുലാം'],['Vrischikam','വൃശ്ചികം'],['Dhanu','ധനു'],['Makaram','മകരം'],['Kumbham','കുംഭം'],['Meenam','മീനം'],['Medam','മേടം'],['Idavam','ഇടവം'],['Mithunam','മിഥുനം'],['Karkidakam','കർക്കടകം']];
-// Approximate start of each Malayalam month in the next 12 months (sample)
-export const MONTH_START = { 3: '2026-11-16', 4: '2026-12-16', 5: '2027-01-14', 6: '2027-02-13', 7: '2027-03-15', 8: '2027-04-14', 9: '2027-05-15', 10: '2027-06-15', 11: '2027-07-17', 0: '2027-08-17', 1: '2027-09-17', 2: '2027-10-17' };
 export const RELS = [['Amma','അമ്മ'],['Achan','അച്ഛൻ'],['Ammoomma','അമ്മൂമ്മ'],['Appooppan','അപ്പൂപ്പൻ'],['Son','മകൻ'],['Daughter','മകൾ'],['Wife / Husband','ഭാര്യ / ഭർത്താവ്']];
 export const PEOPLE = [['Me','ഞാൻ'],['Unni','ഉണ്ണി'],['Priya','പ്രിയ'],['Amma','അമ്മ']];
 
@@ -35,42 +36,57 @@ export const VR = {
 };
 
 export const TEMPLES = [
-  { id: 'bhadrakali', emoji: '🪔', c1: '#7A1E2C', c2: '#D9701A', featured: true, km: 3.2,
-    name: ['Sree Bhadrakali Devi Temple', 'ശ്രീ ഭദ്രകാളി ദേവീക്ഷേത്രം'], place: ['Mulakuzha', 'മുളക്കുഴ'],
-    fest: ['Thiruvutsavam', 'തിരുവുത്സവം'], date: '2026-11-24', dates: ['24 Nov – 1 Dec', 'നവംബർ 24 – ഡിസംബർ 1'],
-    time: ['5:00–11:00 AM · 5:00–8:00 PM', 'രാവിലെ 5:00–11:00 · വൈകിട്ട് 5:00–8:00'],
-    prog: [['24 Nov · 7:00 PM', ['Kodiyettam', 'കൊടിയേറ്റ്']], ['26 Nov · 9:30 PM', ['Kathakali', 'കഥകളി']], ['30 Nov · 10:00 PM', ['Pallivetta', 'പള്ളിവേട്ട']], ['1 Dec · 5:00 PM', ['Aarattu procession', 'ആറാട്ട് ഘോഷയാത്ര']]],
-    q: 'Kerala temple utsavam' },
-  { id: 'mahavishnu', emoji: '🐚', c1: '#1d3b6e', c2: '#4b84c9', km: 5.8,
-    name: ['Sree Mahavishnu Temple', 'ശ്രീ മഹാവിഷ്ണു ക്ഷേത്രം'], place: ['Thiruvanvandoor', 'തിരുവൻവണ്ടൂർ'],
-    fest: ['Ekadashi Vilakku', 'ഏകാദശി വിളക്ക്'], date: '2026-11-20', dates: ['20 Nov', 'നവംബർ 20'],
-    time: ['4:30–11:30 AM · 5:00–8:00 PM', 'രാവിലെ 4:30–11:30 · വൈകിട്ട് 5:00–8:00'],
-    prog: [['20 Nov · 5:00 AM', ['Nirmalyam', 'നിർമ്മാല്യം']], ['20 Nov · 6:30 PM', ['Vilakku & Deeparadhana', 'വിളക്കും ദീപാരാധനയും']]], q: 'Vishnu temple Kerala' },
-  { id: 'mahadeva', emoji: '🔱', c1: '#3a2a5e', c2: '#7a5bb0', km: 4.1,
-    name: ['Sree Mahadeva Temple', 'ശ്രീ മഹാദേവ ക്ഷേത്രം'], place: ['Puliyoor', 'പുലിയൂർ'],
-    fest: ['Pradosha Pooja', 'പ്രദോഷ പൂജ'], date: '2026-11-22', dates: ['22 Nov', 'നവംബർ 22'],
-    time: ['5:00–11:00 AM · 5:00–7:30 PM', 'രാവിലെ 5:00–11:00 · വൈകിട്ട് 5:00–7:30'],
-    prog: [['22 Nov · 5:30 PM', ['Pradosha Pooja', 'പ്രദോഷ പൂജ']]], q: 'Shiva temple Kerala' },
-  { id: 'subrahmanya', emoji: '🦚', c1: '#0f5c4a', c2: '#2a9a77', km: 6.4,
-    name: ['Sree Subrahmanya Swami Temple', 'ശ്രീ സുബ്രഹ്മണ്യ സ്വാമി ക്ഷേത്രം'], place: ['Pandanad', 'പാണ്ടനാട്'],
-    fest: ['Shashti Pooja', 'ഷഷ്ഠി പൂജ'], date: '2026-11-15', dates: ['15 Nov', 'നവംബർ 15'],
-    time: ['5:00–10:30 AM · 5:00–8:00 PM', 'രാവിലെ 5:00–10:30 · വൈകിട്ട് 5:00–8:00'],
-    prog: [['15 Nov · 9:00 AM', ['Shashti Pooja', 'ഷഷ്ഠി പൂജ']]], q: 'Subrahmanya temple Kerala' },
-  { id: 'sastha', emoji: '🛕', c1: '#2b2b2b', c2: '#6a4b2a', km: 7.9,
-    name: ['Sree Dharma Sastha Temple', 'ശ്രീ ധർമ്മശാസ്താ ക്ഷേത്രം'], place: ['Ala', 'ആല'],
-    fest: ['Mandala Vilakku', 'മണ്ഡല വിളക്ക്'], date: '2026-11-28', dates: ['28 Nov', 'നവംബർ 28'],
-    time: ['4:00–11:00 AM · 5:00–9:00 PM', 'രാവിലെ 4:00–11:00 · വൈകിട്ട് 5:00–9:00'],
-    prog: [['28 Nov · 6:30 PM', ['Mandala Vilakku', 'മണ്ഡല വിളക്ക്']], ['Daily in Mandala season', ['Mala dharanam for Sabarimala pilgrims', 'ശബരിമല തീർത്ഥാടകർക്ക് മാലയിടൽ']]], q: 'Ayyappa temple Kerala' },
+  { id: 'guruvayur', emoji: '🐚', c1: '#1d3b6e', c2: '#4b84c9', featured: true,
+    name: ['Guruvayur Sree Krishna Temple', 'ഗുരുവായൂർ ശ്രീകൃഷ്ണ ക്ഷേത്രം'], place: ['Guruvayur, Thrissur', 'ഗുരുവായൂർ, തൃശ്ശൂർ'],
+    fest: ['Guruvayur Ekadashi', 'ഗുരുവായൂർ ഏകാദശി'], date: '2026-11-21', dates: ['Sat, 21 Nov 2026', 'നവംബർ 21, ശനി'],
+    prog: [['17 Nov', ['Mandalakalam begins', 'മണ്ഡലകാലാരംഭം']], ['21 Nov', ['Guruvayur Ekadashi', 'ഗുരുവായൂർ ഏകാദശി']], ['22 Nov', ['Dwadashi Panam Samarpanam', 'ദ്വാദശി പണം സമർപ്പണം']], ['14 Dec', ['Narayaneeya Dinam', 'നാരായണീയ ദിനം']], ['16 Dec', ['Kuchela Dinam', 'കുചേല ദിനം']], ['27 Dec', ['Kalabhattam · Mandala Pooja', 'കളഭാട്ടം · മണ്ഡലപൂജ']]],
+    q: 'Guruvayur Ekadashi' },
+  { id: 'sabarimala', emoji: '🛕', c1: '#2b2b2b', c2: '#6a4b2a',
+    name: ['Sabarimala Sree Dharma Sastha Temple', 'ശബരിമല ശ്രീ ധർമ്മശാസ്താ ക്ഷേത്രം'], place: ['Sabarimala, Pathanamthitta', 'ശബരിമല, പത്തനംതിട്ട'],
+    fest: ['Mandala season begins', 'മണ്ഡലകാലം ആരംഭം'], date: '2026-11-17', dates: ['From Tue, 17 Nov 2026', 'നവംബർ 17 മുതൽ'],
+    prog: [['17 Nov', ['Vrischikam 1 · 41-day Mandala vratham begins', 'വൃശ്ചികം 1 · 41 ദിവസത്തെ മണ്ഡല വ്രതാരംഭം']], ['27 Dec', ['Mandala Pooja', 'മണ്ഡലപൂജ']]],
+    q: 'Sabarimala Mandala season' },
+  { id: 'kumaranalloor', emoji: '🪔', c1: '#7A1E2C', c2: '#D9701A',
+    name: ['Kumaranalloor Devi Temple', 'കുമാരനല്ലൂർ ദേവീക്ഷേത്രം'], place: ['Kumaranalloor, Kottayam', 'കുമാരനല്ലൂർ, കോട്ടയം'],
+    fest: ['Thrikarthika Mahotsavam', 'തൃക്കാർത്തിക മഹോത്സവം'], date: '2026-11-24', dates: ['Thrikarthika: Tue, 24 Nov 2026', 'തൃക്കാർത്തിക: നവംബർ 24, ചൊവ്വ'],
+    prog: [['24 Nov', ['Thrikarthika, the main festival day', 'തൃക്കാർത്തിക, പ്രധാന ഉത്സവ ദിനം']]],
+    q: 'Kumaranalloor Thrikarthika' },
+  { id: 'chakkulathukavu', emoji: '🔥', c1: '#8a2b0e', c2: '#d4652a',
+    name: ['Chakkulathukavu Sree Bhagavathi Temple', 'ചക്കുളത്തുകാവ് ശ്രീ ഭഗവതി ക്ഷേത്രം'], place: ['Neerattupuram, Thiruvalla', 'നീരേറ്റുപുറം, തിരുവല്ല'],
+    fest: ['Pongala', 'പൊങ്കാല'], date: '2026-11-24', dates: ['Tue, 24 Nov 2026', 'നവംബർ 24, ചൊവ്വ'],
+    prog: [['24 Nov', ['Karthika Pongala', 'കാർത്തിക പൊങ്കാല']]],
+    q: 'Chakkulathukavu Pongala' },
+  { id: 'vaikom', emoji: '🔱', c1: '#3a2a5e', c2: '#7a5bb0',
+    name: ['Vaikom Mahadeva Temple', 'വൈക്കം മഹാദേവ ക്ഷേത്രം'], place: ['Vaikom, Kottayam', 'വൈക്കം, കോട്ടയം'],
+    fest: ['Vaikathashtami', 'വൈക്കത്തഷ്ടമി'], date: '2026-12-01', dates: ['Tue, 1 Dec 2026', 'ഡിസംബർ 1, ചൊവ്വ'],
+    prog: [['1 Dec', ['Vaikathashtami', 'വൈക്കത്തഷ്ടമി']]],
+    q: 'Vaikathashtami' },
+  { id: 'thiruvilwamala', emoji: '⛰️', c1: '#0f5c4a', c2: '#2a9a77',
+    name: ['Thiruvilwamala Vilwadrinatha Temple', 'തിരുവില്വാമല വില്വാദ്രിനാഥ ക്ഷേത്രം'], place: ['Thiruvilwamala, Thrissur', 'തിരുവില്വാമല, തൃശ്ശൂർ'],
+    fest: ['Punarjani Noozhal', 'പുനർജ്ജനി നൂഴൽ'], date: '2026-11-21', dates: ['Sat, 21 Nov 2026', 'നവംബർ 21, ശനി'],
+    prog: [['21 Nov', ['Punarjani Noozhal (Guruvayur Ekadashi day)', 'പുനർജ്ജനി നൂഴൽ (ഗുരുവായൂർ ഏകാദശി ദിനം)']]],
+    q: 'Thiruvilwamala Punarjani' },
 ];
 
 // k: 'vr' = vratham, 'fest' = temple festival
 export const CAL = [
-  { d: '2026-11-15', k: 'vr', id: 'shashti' }, { d: '2026-11-16', k: 'vr', id: 'mandala' },
-  { d: '2026-11-20', k: 'vr', id: 'ekadashi' }, { d: '2026-11-22', k: 'vr', id: 'pradosham' },
-  { d: '2026-11-24', k: 'vr', id: 'karthika' }, { d: '2026-11-24', k: 'fest', id: 'bhadrakali' },
-  { d: '2026-11-28', k: 'fest', id: 'sastha' }, { d: '2026-12-05', k: 'vr', id: 'ekadashi', name: ['Ekadashi', 'ഏകാദശി'] },
-  { d: '2026-12-07', k: 'vr', id: 'pradosham' }, { d: '2026-12-15', k: 'vr', id: 'shashti' },
-  { d: '2026-12-27', k: 'fest', id: 'sastha', name: ['Mandala Pooja', 'മണ്ഡലപൂജ'] },
+  { d: '2026-11-17', k: 'vr', id: 'mandala' },
+  { d: '2026-11-21', k: 'vr', id: 'ekadashi' },
+  { d: '2026-11-21', k: 'fest', id: 'thiruvilwamala' },
+  { d: '2026-11-22', k: 'vr', id: 'pradosham' },
+  { d: '2026-11-24', k: 'vr', id: 'karthika' },
+  { d: '2026-11-24', k: 'fest', id: 'kumaranalloor' },
+  { d: '2026-11-24', k: 'fest', id: 'chakkulathukavu' },
+  { d: '2026-12-01', k: 'fest', id: 'vaikom' },
+  { d: '2026-12-04', k: 'vr', id: 'ekadashi', name: ['Ekadashi', 'ഏകാദശി'] },
+  { d: '2026-12-06', k: 'vr', id: 'pradosham' },
+  { d: '2026-12-14', k: 'fest', id: 'guruvayur', name: ['Narayaneeya Dinam · Guruvayur', 'നാരായണീയ ദിനം · ഗുരുവായൂർ'] },
+  { d: '2026-12-15', k: 'vr', id: 'shashti' },
+  { d: '2026-12-20', k: 'vr', id: 'ekadashi', name: ['Ekadashi', 'ഏകാദശി'] },
+  { d: '2026-12-27', k: 'fest', id: 'sabarimala', name: ['Mandala Pooja · Sabarimala', 'മണ്ഡലപൂജ · ശബരിമല'] },
+  { d: '2027-01-03', k: 'vr', id: 'ekadashi', name: ['Ekadashi', 'ഏകാദശി'] },
+  { d: '2027-01-14', k: 'vr', id: 'shashti' },
+  { d: '2027-01-19', k: 'vr', id: 'ekadashi', name: ['Ekadashi', 'ഏകാദശി'] },
 ];
 
 export const VIDEOS = [
@@ -85,10 +101,18 @@ export const VIDEOS = [
   { c: 'vTemple', e: '🐘', g: ['#7A1E2C', '#D9701A'], n: ['Kerala temple festivals', 'കേരള ക്ഷേത്രോത്സവങ്ങൾ'], q: 'Kerala temple festival' },
 ];
 
+// Example family days. Their next date is calculated from the star and month.
 export const DEFAULT_FAMILY = [
-  { id: 'f1', name: ['Amma', 'അമ്മ'], rel: 0, type: 'p', star: 5, month: 3, next: '2026-11-18', who: [0, 1, 2] },
-  { id: 'f2', name: ['Achan', 'അച്ഛൻ'], rel: 1, type: 's', star: 8, month: 11, next: '2027-08-02', who: [0, 1, 2, 3] },
+  { id: 'f1', name: ['Amma', 'അമ്മ'], rel: 0, type: 'p', star: 5, month: 3, who: [0, 1, 2] },
+  { id: 'f2', name: ['Achan', 'അച്ഛൻ'], rel: 1, type: 's', star: 8, month: 11, who: [0, 1, 2, 3] },
 ];
 
 export const PLAN_LIMIT = { free: 2, basic: 10, family: Infinity };
 export const tempById = id => TEMPLES.find(x => x.id === id);
+
+// SOURCES (checked 16 Nov 2026):
+// - Kerala almanac, Vrischika Masam 2026: hindu-blog.com/2009/11/vrishchika-masam-vrishchikam-month-2009.html
+// - Guruvayur temple dates 2026: hindu-blog.com/2016/01/guruvayur-temple-festival-2016.html
+// - Guruvayur Ekadashi 2026: drikpanchang.com/malayalam/ekadashis/guruvayur/guruvayur-ekadashi-date-time.html
+// - Chakkulathukavu Pongala 2026: templesofkerala.org/alappuzhafest/chakkulathukavupongala.html
+// - Ekadashi, Pradosham, Shashti after 15 Dec: calculated in src/data/panchang.js

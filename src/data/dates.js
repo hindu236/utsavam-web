@@ -1,4 +1,5 @@
-import { DEMO_TODAY, MONTH_START } from './content';
+import { TODAY } from './content';
+import { nextStarInMonth } from './panchang';
 
 const MON_EN = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 export const MON_EN_FULL = ['January','February','March','April','May','June','July','August','September','October','November','December'];
@@ -9,8 +10,8 @@ export const WD_ML_S = ['ഞാ','തി','ചൊ','ബു','വ്യാ','വ�
 
 export const parse = s => { const [y, m, d] = s.split('-').map(Number); return new Date(y, m - 1, d); };
 export const iso = d => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
-export const todayIso = iso(DEMO_TODAY);
-export const diff = s => Math.round((parse(s) - DEMO_TODAY) / 86400000);
+export const todayIso = iso(TODAY);
+export const diff = s => Math.round((parse(s) - TODAY) / 86400000);
 
 export const fmt = (s, lang) => {
   const d = parse(s);
@@ -21,11 +22,13 @@ export const fmtY = (s, lang) => {
   return lang === 'ml' ? `${MON_ML[d.getMonth()]} ${d.getDate()}, ${d.getFullYear()} (${WD_ML[d.getDay()]})` : `${WD_EN[d.getDay()]}, ${d.getDate()} ${MON_EN[d.getMonth()]} ${d.getFullYear()}`;
 };
 
-// Sample only: the real app must calculate this from a panchangam.
+// Next date when the given star falls in the given Malayalam month,
+// calculated for Chengannur (see panchang.js). Cached because it scans days.
+const famCache = {};
 export function nextFamilyDate(star, month) {
-  const d = parse(MONTH_START[month]);
-  d.setDate(d.getDate() + ((star * 7 + month * 3) % 28));
-  return iso(d);
+  const k = `${star}-${month}-${todayIso}`;
+  if (!famCache[k]) famCache[k] = nextStarInMonth(star, month, TODAY);
+  return famCache[k];
 }
 
 export const youtube = q => 'https://www.youtube.com/results?search_query=' + encodeURIComponent(q);

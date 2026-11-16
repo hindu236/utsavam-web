@@ -1,14 +1,39 @@
 import { useNavigate } from 'react-router-dom';
 import { useApp } from '../state/AppContext';
 import { LangToggle, useBack } from '../components/ui';
+import { CAL, MONTHS, PEOPLE, STARS, TODAY, VR, tempById } from '../data/content';
+import { diff } from '../data/dates';
+import { malayalamDate, starOfDay } from '../data/panchang';
 
-// A preview of the WhatsApp messages users receive. The real sending happens on the server (WhatsApp Business API).
+const WD = { en: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'], ml: ['ഞായർ', 'തിങ്കൾ', 'ചൊവ്വ', 'ബുധൻ', 'വ്യാഴം', 'വെള്ളി', 'ശനി'] };
+const WD_LONG = { en: ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'], ml: ['ഞായറാഴ്ച', 'തിങ്കളാഴ്ച', 'ചൊവ്വാഴ്ച', 'ബുധനാഴ്ച', 'വ്യാഴാഴ്ച', 'വെള്ളിയാഴ്ച', 'ശനിയാഴ്ച'] };
+
+// A preview of the WhatsApp messages users receive, built from the real dates.
+// The real sending happens on the server (WhatsApp Business API).
 export default function WhatsApp() {
-  const { t, lang, plan, toast } = useApp();
+  const { t, L, lang, plan, toast, fmt, family } = useApp();
   const navigate = useNavigate();
   const goBack = useBack('/');
   const ml = lang === 'ml';
   const sponsor = plan === 'free' && <div className="sp">💍 {t('sponsorBy')} {t('sponsorName')}</div>;
+
+  const parseD = s => { const [y, m, d] = s.split('-').map(Number); return new Date(y, m - 1, d); };
+  const wd = s => WD[ml ? 'ml' : 'en'][parseD(s).getDay()];
+  const title = e => (e.k === 'vr'
+    ? L(e.name || VR[e.id].name)
+    : (e.name ? L(e.name) : `${L(tempById(e.id).fest)} · ${L(tempById(e.id).name)}`));
+
+  const md = malayalamDate(TODAY);
+  const todayMal = `${L(MONTHS[md.month])} ${md.day}`;
+  const todayStar = L(STARS[starOfDay(TODAY)]);
+  const todayWd = WD_LONG[ml ? 'ml' : 'en'][TODAY.getDay()];
+
+  const upcoming = CAL.filter(e => diff(e.d) >= 0);
+  const comingDays = upcoming.filter(e => e.k === 'vr' && diff(e.d) <= 10).slice(0, 3);
+  const nextVr = upcoming.find(e => e.k === 'vr');
+  const nextFest = upcoming.find(e => e.k === 'fest');
+  const fam = [...family].filter(f => diff(f.next) >= 0).sort((a, b) => a.next.localeCompare(b.next))[0];
+  const famWho = fam ? fam.who.filter(i => i > 0).map(i => L(PEOPLE[i])).join(ml ? ', ' : ' and ') : '';
 
   return (
     <div className="wa-screen">
@@ -19,28 +44,39 @@ export default function WhatsApp() {
         <LangToggle />
       </header>
 
-      <div className="wa-day"><span>{t('yesterday')}</span></div>
-      <div className="msg">
-        {ml ? <>🔔 നാളെ <b>ഷഷ്ഠി വ്രതം</b>. സുബ്രഹ്മണ്യ സ്വാമി ക്ഷേത്രം, പാണ്ടനാട് – രാവിലെ 9 മണിക്ക് ഷഷ്ഠി പൂജ.</>
-          : <>🔔 Tomorrow is <b>Shashti vratham</b>. Sree Subrahmanya Swami Temple, Pandanad – Shashti Pooja at 9 AM.</>}
-        <div className="tm">6:00 PM</div>
-      </div>
+      {nextVr && <>
+        <div className="wa-day"><span>{t('yesterday')}</span></div>
+        <div className="msg">
+          {ml ? <>🔔 വരുന്നു: <b>{title(nextVr)}</b> – {fmt(nextVr.d)}.</>
+            : <>🔔 Coming up: <b>{title(nextVr)}</b> on {fmt(nextVr.d)}.</>}
+          <div className="tm">6:00 PM</div>
+        </div>
+      </>}
 
       <div className="wa-day"><span>{t('todayW')}</span></div>
       <div className="msg">
-        {ml ? <>🙏 <b>സുപ്രഭാതം!</b><br />ഇന്ന് <b>തുലാം 27</b>, വെള്ളിയാഴ്ച · നക്ഷത്രം: ഉത്രാടം<br /><br />📿 <b>വരും ദിവസങ്ങളിൽ:</b><br />• ഞായർ – ഷഷ്ഠി വ്രതം<br />• തിങ്കൾ – <b>മണ്ഡല വ്രതാരംഭം</b> (വൃശ്ചികം 1)<br />• വെള്ളി – ഗുരുവായൂർ ഏകാദശി<br /><br />🪔 അടുത്തുള്ള ഉത്സവം: ശ്രീ ഭദ്രകാളി ദേവീക്ഷേത്രം, മുളക്കുഴ – നവംബർ 24 കൊടിയേറ്റ്</>
-          : <>🙏 <b>Good morning!</b><br />Today is <b>Thulam 27</b>, Friday · Star: Uthradam<br /><br />📿 <b>Coming days:</b><br />• Sun – Shashti vratham<br />• Mon – <b>Mandala vratham begins</b> (Vrischikam 1)<br />• Fri – Guruvayur Ekadashi<br /><br />🪔 Nearby festival: Sree Bhadrakali Devi Temple, Mulakuzha – Kodiyettam on 24 Nov</>}
+        {ml ? <>🙏 <b>സുപ്രഭാതം!</b><br />ഇന്ന് <b>{todayMal}</b>, {todayWd} · നക്ഷത്രം: {todayStar}</>
+          : <>🙏 <b>Good morning!</b><br />Today is <b>{todayMal}</b>, {todayWd} · Star: {todayStar}</>}
+        {comingDays.length > 0 && <>
+          <br /><br />📿 <b>{ml ? 'വരും ദിവസങ്ങളിൽ:' : 'Coming days:'}</b>
+          {comingDays.map(e => <span key={e.d + e.id}><br />• {diff(e.d) === 0 ? t('todayW') : wd(e.d)} – {title(e)}</span>)}
+        </>}
+        {nextFest && <>
+          <br /><br />🪔 {ml ? 'ഉത്സവം:' : 'Festival:'} {title(nextFest)} – {fmt(nextFest.d)}
+        </>}
         {sponsor}
         <div className="tm">6:00 AM</div>
         <div className="qr"><button onClick={() => navigate('/calendar')}>📅 {t('openApp')}</button><button onClick={() => toast(t('stopToast'))}>{t('stop')}</button></div>
       </div>
 
-      <div className="msg">
-        {ml ? <>🎂 <b>അമ്മയുടെ പിറന്നാൾ</b> (തിരുവാതിര) ബുധനാഴ്ച, <b>നവംബർ 18</b>-ന്.<br />ക്ഷേത്രത്തിൽ വഴിപാട് നടത്താൻ മറക്കരുതേ 🙏<br /><small>ഉണ്ണി, പ്രിയ എന്നിവർക്കും അയച്ചു</small></>
-          : <>🎂 <b>Amma's pirannal</b> (Thiruvathira) is on Wednesday, <b>18 Nov</b>.<br />Don't forget a vazhipadu at the temple 🙏<br /><small>Also sent to Unni and Priya</small></>}
-        <div className="tm">6:01 AM</div>
-        <div className="qr"><button onClick={() => navigate('/family')}>{t('openApp')}</button></div>
-      </div>
+      {fam && (
+        <div className="msg">
+          {ml ? <>🎂 <b>{L(fam.name)}</b> ({L(STARS[fam.star])}) – <b>{fmt(fam.next)}</b>.<br />ക്ഷേത്രത്തിൽ വഴിപാട് നടത്താൻ മറക്കരുതേ 🙏{famWho && <><br /><small>{famWho} എന്നിവർക്കും അയച്ചു</small></>}</>
+            : <>🎂 <b>{L(fam.name)}</b> ({L(STARS[fam.star])}) is on <b>{fmt(fam.next)}</b>.<br />Don&apos;t forget a vazhipadu at the temple 🙏{famWho && <><br /><small>Also sent to {famWho}</small></>}</>}
+          <div className="tm">6:01 AM</div>
+          <div className="qr"><button onClick={() => navigate('/family')}>{t('openApp')}</button></div>
+        </div>
+      )}
 
       <div className="msg out">{t('thanks')}<div className="tm">6:15 AM ✓✓</div></div>
       <div className="wa-note">{t('waNote')}</div>
